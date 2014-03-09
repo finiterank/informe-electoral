@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
+
+#mapa-div {margin: 0 auto; width:70%;}
+
+.dpto {fill : #ddc;}
+.dpto:hover {fill: #ff6600;}
+.depto-borde {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+  stroke-width: 2;}
+
+
+</style>
+<body>
+<div id="mapa-div">
+</div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript">
+
+var width = parseFloat(d3.select("#mapa-div").style("width")),
+    height = width;
+
+var svg = d3.select("#mapa-div").append("svg")
+    .attr("preserveAspectRatio", "xMidYMid")
+    .attr("viewBox", "0 0 900 900")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.select(window).on('resize', resize);
+
+function resize(){
+	width = parseFloat(d3.select("#mapa-div").style("width"));
+  height = width;
+  svg.attr("width", width)
+    .attr("height", height);
+}
+
+/*
+ogr2ogr -f GeoJSON depto.json depto.shp -s_srs EPSG:26986 -t_srs EPSG:4326
+topojson --id-property +DPTO -p cod=DPTO -p +cod -p name=NOMBRE_DPT -p name -o mapa-departamentos.json depto.json
+ */
+
+
+d3.json("depto/mapa-departamentos.json", function(error, co) {
+    var departamentos = topojson.feature(co, co.objects.depto);
+    var projection = d3.geo.mercator()
+    	.scale(2000)
+    	.translate([width / 2, height / 2])
+    	.center([-61,43])
+    	.rotate([2,3,2]);
+
+	  var path = d3.geo.path()
+		  .projection(projection);
+
+	  svg.append("path")
+		  .datum(departamentos)
+		  .attr("d", path);
+	  svg.selectAll(".dpto")
+	    .data(departamentos.features)
+  		.enter().append("path")
+    	.attr("class", function(d) { return "dpto " + "_" + d.id; })
+    	.attr("d", path);
+    svg.append("path")
+      .datum(topojson.mesh(co, co.objects.depto, function(a, b) { return a !== b; }))
+      .attr("d", path)
+      .attr("class", "depto-borde");
+});
+</script>
+</body>
+</html>

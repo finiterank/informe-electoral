@@ -10,6 +10,10 @@ var mapa = d3.select("#mapa-div").append("svg")
     .attr("width", widthmapa)
     .attr("height", heightmapa);
 
+var tooltip = d3.select("#mapa-div").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
 var barplot = d3.select("#bar-plot-div").append("svg")
     .attr("width", widthbarplot)
     .attr("height", heightbarplot);
@@ -43,7 +47,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
               listavotos.push(partido[departamentos[i]]);
             }
 
-
+            partido.LISTAVOTOS = listavotos;
             partido.VOTOS = votos;
             partido.PARTIDO = partido.PARTIDO
                               .replace(/\w\S*/g, function(txt){
@@ -52,7 +56,15 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
          });
 
         console.log(data, totales)
-   //
+
+        data.forEach(function(partido) {
+          listavotosrel = [];
+            for(var i = 0; i < departamentos.length; i++){
+              listavotosrel.push(partido.LISTAVOTOS[i] / totales[departamentos[i]] );
+            }
+          partido.LISTAVOTOSREL = listavotosrel;
+        });
+
   //       // Datos organizados por partido
    //
   //       var partidos = d3.nest()
@@ -111,8 +123,8 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              .attr("height", function(d){
                return yScaleBarPlot(d.VOTOS);
              })
-             .attr("fill", function(d){return color(d.PARTIDO);});
-  //           .on("click", colorDepts);
+             .attr("fill", function(d){return color(d.PARTIDO);})
+             .on("click", colorDepts);
    //
    //
          var labels = barplot.selectAll("text.lab-barras")
@@ -200,7 +212,8 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              .attr("height", function(d){
                return yScaleBarPlot(d.VOTOS);
              })
-             .attr("fill", function(d){return color(d.PARTIDO);});
+             .attr("fill", function(d){return color(d.PARTIDO);})
+             .on("click", colorDepts);
 
             bars
               .transition()
@@ -287,8 +300,20 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
          mapa.selectAll(".dpto")
              .data(departamentos.features)
              .enter().append("path")
-             .attr("class", function(d) { return "dpto " + "_" + d.properties.name.toUpperCase(); })
+             .attr("class", function(d) { return "dpto " + "_" + d.properties.name.toUpperCase();})
+             .on("mouseover", function(d) {
+               tooltip.transition()
+                 .duration(200)
+                 .style("opacity", .9);
+               tooltip.html("<strong>" + d.properties.name + "</strong><br>" + totales[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos");
+            })
+            .on("mouseout", function(d) {
+               tooltip.transition()
+                 .duration(500)
+                 .style("opacity", 0);
+               })
              .attr("d", path);
+
 
          mapa.append("path")
              .datum(topojson.mesh(colombia, colombia.objects.depto, function(a, b) { return a !== b; }))
@@ -296,18 +321,31 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              .attr("class", "depto-borde");
 
          function colorDepts(partido){
+             var opacityScale = d3.scale.linear()
+                 .domain([0, d3.max(partido.LISTAVOTOSREL)])
+                 .range([0.5, 1]);
 
              mapa.selectAll(".dpto")
                .data(departamentos.features)
+               .on("mouseover", function(d) {
+                 tooltip.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+                 tooltip.html("<strong>" + d.properties.name + "</strong><br>" + totales[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos <br>" + partido.PARTIDO + ": " + partido[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos");
+
+              })
+              .on("mouseout", function(d) {
+                 tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+                 })
                .transition()
                .duration(1000)
-               .style("fill", function(d){
-                 if(partido.depts.has(d.properties.name.toUpperCase())){
-                 return color(partido.key);
-                 }
-                 else{
-                 return "#ccc";
-                 }
+               .style("fill", color(partido.PARTIDO))
+               .style("fill-opacity", function(d){
+                 var denominador = totales[d.properties.name.toUpperCase()];
+                 var numerador = partido[d.properties.name.toUpperCase()];
+                 return opacityScale(numerador/denominador);
                });
          }
    //

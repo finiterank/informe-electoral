@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<title>Distribución Senado 2014</title>
+<meta charset="utf-8">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href='http://fonts.googleapis.com/css?family=Muli:300,400,300italic,400italic' rel='stylesheet' type='text/css'>
+<link href="css/style.css" rel='stylesheet' type='text/css'>
+<body>
+<div class="container">
+<div class="row">
+
+<div class="col-md-6">
+<h1>Distribución del Senado<br><small>Elecciones de 2014</small></h1>
+<div id="bar-plot-div" style="margin-bottom:20px;">
+</div>
+<p class="text-center">
+  <button type="button" id="votos" class="btn btn-primary btn-xs">Votos</button>
+  <button type="button" id="curules" class="btn btn-default btn-xs">Curules</button>
+</p>
+
+<div id="partidos-div">
+</div>
+
+</div>
+
+<div class="col-md-6">
+<div id="mapa-div">
+</div>
+</div>
+
+
+</div>
+</div>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/topojson.v1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/senado2014.js"></script>
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48011916-1', 'finiterank.github.io');
+  ga('send', 'pageview');
+</script>
+</script>
+</body>
+</html>

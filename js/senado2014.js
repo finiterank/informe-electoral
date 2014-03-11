@@ -331,8 +331,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
                  tooltip.transition()
                    .duration(200)
                    .style("opacity", .9);
-                 tooltip.html("<strong>" + d.properties.name + "</strong><br>" + totales[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos <br>" + partido.PARTIDO + ": " + partido[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos");
-
+                 tooltip.html("<strong>" + d.properties.name + "</strong><br>" + totales[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos <br>" + partido.PARTIDO + ": " + partido[d.properties.name.toUpperCase()].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " votos ("+ (100 * partido[d.properties.name.toUpperCase()]/totales[d.properties.name.toUpperCase()]).toFixed(2) +"%)");
               })
               .on("mouseout", function(d) {
                  tooltip.transition()
@@ -348,33 +347,31 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
                  return opacityScale(numerador/denominador);
                });
          }
-   //
-  //       d3.select(window).on('resize', resize);
-   //
-  //       function resize(){
-  //           widthmapa = parseFloat(d3.select("#mapa-div").style("width"));
-  //           heightmapa = widthmapa;
-  //           widthbarplot = parseFloat(d3.select("#bar-plot-div").style("width"));
-   //
-  //           xScaleBarPlot = d3.scale.ordinal()
-  //               .domain(d3.range(partidos.length))
-  //               .rangeRoundBands([0, widthbarplot], 0.05);
-   //
-  //           barplot.attr("width", widthbarplot);
-  //           cajapartidos.attr("width", widthbarplot);
-   //
-  //           barras.attr("x", function(d, i){return xScaleBarPlot(i);})
-  //             .attr("width", xScaleBarPlot.rangeBand());
-   //
-  //           labels.attr("x", function(d, i){return xScaleBarPlot(i) + xScaleBarPlot.rangeBand() / 2 ; })
-   //
-  //           mapa.attr("width", widthmapa)
-  //             .attr("height", heightmapa);
-   //
-   //
-  //           projection.translate([widthmapa / 2, heightmapa / 2]);
-   //
-  //           path.projection(projection);
-  //       }
+
+         d3.select(window).on('resize', resize);
+
+         function resize(){
+             widthmapa = parseFloat(d3.select("#mapa-div").style("width"));
+             heightmapa = widthmapa;
+             widthbarplot = parseFloat(d3.select("#bar-plot-div").style("width"));
+
+             xScaleBarPlot.rangeRoundBands([0, widthbarplot], 0.05);
+
+             barplot.attr("width", widthbarplot);
+             cajapartidos.attr("width", widthbarplot);
+
+             barras.attr("x", function(d, i){return xScaleBarPlot(i);})
+               .attr("width", xScaleBarPlot.rangeBand());
+
+             labels.attr("x", function(d, i){return xScaleBarPlot(i) + xScaleBarPlot.rangeBand() / 2 ; })
+
+             mapa.attr("width", widthmapa)
+               .attr("height", heightmapa);
+
+
+             projection.translate([widthmapa / 2, heightmapa / 2]);
+
+             path.projection(projection);
+         }
     });
 });

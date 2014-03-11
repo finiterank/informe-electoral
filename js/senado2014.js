@@ -1,4 +1,3 @@
-
 var widthmapa = parseFloat(d3.select("#mapa-div").style("width")),
     heightmapa = widthmapa,
     widthbarplot = parseFloat(d3.select("#bar-plot-div").style("width")),
@@ -65,35 +64,11 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
           partido.LISTAVOTOSREL = listavotosrel;
         });
 
-  //       // Datos organizados por partido
-   //
-  //       var partidos = d3.nest()
-  //           .key(function(d) { return d.partido; })
-  //           .entries(data);
-   //
          data = data.sort(function(a,b){
                   return - a.VOTOS + b.VOTOS;
                 });
-   //
-  //       partidos.forEach(function(partido){
-  //         partido.votos = acumulados(partido.values)[0];
-  //         partido.depts = acumulados(partido.values)[1];
-  //       });
-   //
-  //       function acumulados(partido){
-  //         var suma = 0;
-  //         var depts = [];
-  //         for (var i=0; i < partido.length; i++){
-  //           suma += partido[i].votacion;
-  //           depts = depts.concat(partido[i].departamentos);
-  //         }
-  //         return [suma, d3.set(depts)];
-  //       }
-   //
-  //       console.log(partidos, partidos.length);
-   //
-         // Diagrama de Barras
-   //
+
+// Diagrama de Barras
 
          var color = d3.scale.category10()
              .domain(data.map(function(d){
@@ -125,9 +100,8 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              })
              .attr("fill", function(d){return color(d.PARTIDO);})
              .on("click", colorDepts);
-   //
-   //
-         var labels = barplot.selectAll("text.lab-barras")
+
+          var labels = barplot.selectAll("text.lab-barras")
              .data(data)
              .enter().append("text")
              .attr("class", "lab-barras")

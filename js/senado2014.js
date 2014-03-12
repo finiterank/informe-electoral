@@ -70,10 +70,21 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
 
 // Diagrama de Barras
 
-         var color = d3.scale.category10()
-             .domain(data.map(function(d){
-               return d.PARTIDO;
-             }));
+//         var color = d3.scale.category10()
+//             .domain(data.map(function(d){
+//               return d.PARTIDO;
+//             }));
+
+        var color = {"Partido De La U":"#ff7f0e",
+                    "Centro Democrático":"#7f7f7f",
+                    "Partido Conservador":"#1f77b4",
+                    "Partido Liberal":"#FF0000",
+                    "Cambio Radical":"#A30599",
+                    "Voto En Blanco":"#ffffff",
+                    "Partido Verde": "#2ca02c",
+                    "Polo Democrático":"#ffed00",
+                    "Partido Opción Ciudadana":"#8c564b",
+                    "Mira":"#17becf"}
 
          var xScaleBarPlot = d3.scale.ordinal()
              .domain(d3.range(data.length))
@@ -98,7 +109,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              .attr("height", function(d){
                return yScaleBarPlot(d.VOTOS);
              })
-             .attr("fill", function(d){return color(d.PARTIDO);})
+             .attr("fill", function(d){return color[d.PARTIDO];})
              .on("click", colorDepts);
 
           var labels = barplot.selectAll("text.lab-barras")
@@ -145,7 +156,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
               .attr("height", function(d){
                 return yScaleBarPlot(d.CURUL);
               })
-              .attr("fill", function(d){return color(d.PARTIDO);});
+              .attr("fill", function(d){return color[d.PARTIDO];});
 
             labs = barplot.selectAll("text.lab-barras")
               .data(data.filter(curulespositivas));
@@ -186,7 +197,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
              .attr("height", function(d){
                return yScaleBarPlot(d.VOTOS);
              })
-             .attr("fill", function(d){return color(d.PARTIDO);})
+             .attr("fill", function(d){return color[d.PARTIDO];})
              .on("click", colorDepts);
 
             bars
@@ -200,7 +211,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
               .attr("height", function(d){
                 return yScaleBarPlot(d.VOTOS);
               })
-              .attr("fill", function(d){return color(d.PARTIDO);});
+              .attr("fill", function(d){return color[d.PARTIDO];});
 
             labs = barplot.selectAll("text.lab-barras")
               .data(data);
@@ -239,7 +250,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
            .attr("x", 15)
            .attr("width", 15)
            .attr("height", 15)
-           .style("fill", function(d){ return color(d.PARTIDO);});
+           .style("fill", function(d){ return color[d.PARTIDO];});
 
          var leyendas = legend.append("text")
            .attr("x", 35)
@@ -314,7 +325,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
                  })
                .transition()
                .duration(1000)
-               .style("fill", color(partido.PARTIDO))
+               .style("fill", color[partido.PARTIDO])
                .style("fill-opacity", function(d){
                  var denominador = totales[d.properties.name.toUpperCase()];
                  var numerador = partido[d.properties.name.toUpperCase()];

@@ -308,7 +308,7 @@ d3.json("depto/mapa-departamentos.json", function(error, colombia) {
          function colorDepts(partido){
              var opacityScale = d3.scale.linear()
                  .domain([0, d3.max(partido.LISTAVOTOSREL)])
-                 .range([0.5, 1]);
+                 .range([0.35, 1]);
 
              mapa.selectAll(".dpto")
                .data(departamentos.features)

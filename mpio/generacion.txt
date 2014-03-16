@@ -1,0 +1,5 @@
+Comandos para generar el municipios.col.json:
+
+ogr2ogr -f GeoJSON mpio.json mpio.shp -s_srs EPSG:26986 -t_srs EPSG:4326
+
+topojson --id-property +MPIOS -p name=NOMBRE_MPI -p name -p dpt=NOMBRE_DPT -p dpt -o municipios.col.json mpio.json ../depto/mapa-departamentos.json

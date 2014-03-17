@@ -100,7 +100,7 @@ function ready(error, colombia) {
     projection = d3.geo.mercator()
         .scale(2100)
         .translate([widthmap / 2, heightmap / 2])
-        .center([-55,39])
+        .center([-55,40])
         .rotate([12,3,9]);
 
     var path = d3.geo.path()

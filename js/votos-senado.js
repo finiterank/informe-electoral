@@ -203,7 +203,7 @@ function generateSelectorCandidatos(){
 }
 
 function imprimirOpciones(opciones){
-	var output = '<option value="' + v + '">' + opciones[0] + '</option>';
+	var output = '<option value="' + "DISTRIBUCIÓN NACIONAL" + '">' + opciones[0] + '</option>';
 	for(var i=1; i < opciones.length; i++){
         var v = opciones[i].toUpperCase();
         var p = datosCandidatoNombre.get(v)["par"];

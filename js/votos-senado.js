@@ -440,19 +440,6 @@ function colorearMapaInicial(){
     info.html("<small>Porcentaje de votos válidos nacionales para cada partido.</small>");
     map.selectAll(".mpio")
         .data(municipios.features)
-        .transition()
-        .duration(1000)
-        .style("fill-opacity", 1)
-        .style("fill", function(d) {
-            var datos = datosMunicipioId.get(d.id)
-            if(datos){
-                var ganador = datos["gan"];
-                return color[ganador];
-            }
-            else{
-                return "#000000";
-            }
-        })
         .on("mouseover", function(d){
             var h = datosMunicipioId.get(d.id)
             var vectorvotos = h["votos"];
@@ -474,6 +461,19 @@ function colorearMapaInicial(){
         .on("mouseout", function(){
             updateBarplot(vectorvotosinicial, validosinicial);
             info.html("<small>Porcentaje de votos válidos nacionales para cada partido.</small>");
+        })
+        .transition()
+        .duration(1000)
+        .style("fill-opacity", 1)
+        .style("fill", function(d) {
+            var datos = datosMunicipioId.get(d.id)
+            if(datos){
+                var ganador = datos["gan"];
+                return color[ganador];
+            }
+            else{
+                return "#000000";
+            }
         });
 }
 

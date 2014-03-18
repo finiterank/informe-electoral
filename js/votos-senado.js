@@ -380,9 +380,11 @@ function colorearMapaCandidato(datos){
         var step = (1 - baserango) / 4;
         return baserango + (d * step);
     });
-    var opacityScale = d3.scale.quantile()
-        .domain(dominioopacidad)
-        .range(rangoopacidad);
+    // var opacityScale = d3.scale.quantile()
+    var opacityScale = d3.scale.threshold()
+      .domain(ss.jenks(dominioopacidad, 5))
+        //.domain(dominioopacidad)
+      .range(rangoopacidad);
 
     map.selectAll(".mpio")
         .data(municipios.features)

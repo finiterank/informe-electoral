@@ -3,7 +3,7 @@ var xScaleBarPlot,
     barras, labels,
     projection,
     vectorvotosinicial,
-    validosinicial;
+    validosinicial, path;
 
 var widthmap = parseFloat(d3.select("#mapa-municipios").style("width")),
     heightmap = widthmap,
@@ -12,7 +12,8 @@ var widthmap = parseFloat(d3.select("#mapa-municipios").style("width")),
     widthlegend = parseFloat(d3.select("#leyenda").style("width")),
     heightlegend = 200;
 
-var datosMunicipioId = d3.map();
+var datosMunicipioId = d3.map(),
+    datosCandidatoNombre = d3.map();
 
 var map = d3.select("#mapa-municipios")
     .append("svg")
@@ -42,7 +43,11 @@ var barplot = d3.select("#bar-plot").append("svg")
 
 
 var info = d3.select("#info").append("div")
-            .html("<small>" + "Porcentaje de votos válidos nacionales para cada partido" + "</small>");
+            .html("<small>" + "Porcentaje de votos válidos nacionales para cada partido." + "</small>");
+
+var selector = d3.select("#selector").append("select")
+                .attr("class", "form-control")
+                .attr("id", "candidatos");
 
 var color = {"la.u":"#ff7f0e",
             "centro.democratico":"#7f7f7f",
@@ -55,6 +60,25 @@ var color = {"la.u":"#ff7f0e",
             "mira":"#17becf",
             "Empate": "#000000"};
 
+var posicionpartidos = {"la.u": 0,
+            "centro.democratico": 1,
+            "conservador":2,
+            "liberal": 3,
+            "cambio.radical": 4,
+            "verdes": 5,
+            "polo": 6,
+            "poc": 7,
+            "mira":8};
+
+var cortopartidos = {"la.u": "La U",
+            "centro.democratico": "C. Dem.",
+            "conservador": "Cons.",
+            "liberal": "Lib.",
+            "cambio.radical": "C. Rad.",
+            "verdes": "Verd.",
+            "polo": "PDA",
+            "poc": "POC",
+            "mira": "Mira"};
 
 var datapartidos = [
     {"nombre": "Partido de la Unidad Nacional", "color": color["la.u"], "ganadores": 287},
@@ -76,16 +100,16 @@ var colorespartidos = datapartidos.map(function(d){
 queue()
     .defer(d3.json, "mpio/municipios.col.json")
     .defer(d3.csv, "datos/votosmpio.csv", fillDatosMunicipios)
+    .defer(d3.csv, "datos/candidatosvotompio.csv", fillDatosCandidatos)
     .await(ready);
 
 
 legendGenerator();
 
 d3.select(window).on('resize', resize);
-
+d3.select("#candidatos").on('change', change);
 
 function ready(error, colombia) {
-
     vectorvotosinicial = datosMunicipioId.values().map(function(d){
         return d["votos"];
     }).reduce(sumArrays);
@@ -94,6 +118,8 @@ function ready(error, colombia) {
         return d["val"];
     }).reduce(function(a,b){return a+b;});
 
+
+    generateSelectorCandidatos();
     barplotInicial();
     municipios = topojson.feature(colombia, colombia.objects.mpio);
 
@@ -103,7 +129,7 @@ function ready(error, colombia) {
         .center([-55,40])
         .rotate([12,3,9]);
 
-    var path = d3.geo.path()
+    path = d3.geo.path()
         .projection(projection);
 
     map.append("path")
@@ -162,13 +188,35 @@ function ready(error, colombia) {
         .attr("class", "depto-borde");
 }
 
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function generateSelectorCandidatos(){
+    var candidatos = datosCandidatoNombre.keys().sort(d3.ascending).map(toTitleCase);
+    var removed = candidatos.splice(464,9);
+    var ord = removed.concat(candidatos);
+    var ordenados = ["Distribución nacional"].concat(ord)
+    var opcionesimpresas = imprimirOpciones(ordenados);
+    selector.html(opcionesimpresas);
+}
+
+function imprimirOpciones(opciones){
+	var output = '<option value="' + v + '">' + opciones[0] + '</option>';
+	for(var i=1; i < opciones.length; i++){
+        var v = opciones[i].toUpperCase();
+        var p = datosCandidatoNombre.get(v)["par"];
+		output = output + '<option value="' + v + '">' + opciones[i] + " ("+ cortopartidos[p] + ")"+ '</option>';
+	}
+	return output;
+}
+
 function barplotInicial(){
 
     var porcinicial = porcentajesVotos(vectorvotosinicial, validosinicial);
 
     var datosbarplotinicial = d3.zip(porcinicial, colorespartidos);
-
-    console.log(datosbarplotinicial);
 
     xScaleBarPlot = d3.scale.ordinal()
         .domain(d3.range(datosbarplotinicial.length))
@@ -240,6 +288,23 @@ function fillDatosMunicipios(d){
     datosMunicipioId.set(d.dane, d);
 }
 
+
+
+function fillDatosCandidatos(d){
+    var values=new Array();
+    d["tot"] = +d["tot"];
+    d["cur"] = +d["cur"];
+    for(var key in d){
+        var sufijo = key.substr(0,3);
+        if(sufijo == "mun"){
+            d[key] = +d[key];
+            values.push(d[key]);
+        }
+    }
+    d["values"] = values;
+    datosCandidatoNombre.set(d.nom, d);
+}
+
 function legendGenerator(){
     var leg = legend.selectAll(".legend")
         .data(datapartidos)
@@ -291,6 +356,139 @@ function updateBarplot(vectorvotos, validos){
         .text(function(d){return d[0].toFixed(2) + "%";})
         .attr("y", function(d) { return heightbarplot - yScaleBarPlot(d[0]) - 5; });
 }
+
+function colorearMapaCandidato(datos){
+
+    var total = datos["tot"];
+    var totalpartido = vectorvotosinicial[posicionpartidos[datos["par"]]];
+    var porcentaje = 100 * total / totalpartido;
+    if(datos["cur"] == 1){
+        var senadorono = " Será senador en el nuevo período."
+    }
+    else{
+        var senadorono = "";
+    }
+    updateBarplot(vectorvotosinicial, validosinicial);
+    info.html("<small>Porcentaje de votos válidos nacionales para cada partido."
+      + "<br>" + toTitleCase(datos["nom"]) + " logró " + votosPalabra(datos["tot"]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+      + " a nivel nacional; un " + porcentaje.toFixed(2) + "% del total de su partido." + senadorono + "</small>");
+    var dominioopacidad = datos["values"].filter(function(d){
+        return d != 0
+    });
+    var baserango = 0.3;
+    var rangoopacidad = d3.range(5).map(function(d){
+        var step = (1 - baserango) / 4;
+        return baserango + (d * step);
+    });
+    var opacityScale = d3.scale.quantile()
+        .domain(dominioopacidad)
+        .range(rangoopacidad);
+
+    map.selectAll(".mpio")
+        .data(municipios.features)
+        .on("mouseover", function(d){
+            var h = datosMunicipioId.get(d.id)
+            var vectorvotos = h["votos"];
+            var validos = h["val"];
+            updateBarplot(vectorvotos, validos);
+            var mun= h["mun"];
+            var dep= h["dep"];
+            var blan = 100 * h["bl"] / h["val"];
+            var abs = h["abs"];
+            var valporc = 100 * h["val"] / validosinicial;
+            var votoscand = datos["mun" + d.id];
+            var porccandmun = 100 * votoscand / h["val"];
+            var totalpartidomun = vectorvotos[posicionpartidos[datos["par"]]];
+            var porccandpartmun = 100 * votoscand / totalpartidomun;
+            info.html("<small>" +
+            "Porcentaje de votos válidos en "
+            + mun +", " + dep + ", para cada partido."
+            + "<br>" + toTitleCase(datos["nom"]) + " logró " + votosPalabra(votoscand).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " aquí;"
+            + " un " + porccandmun.toFixed(2) + "% del total de válidos municipales (y "
+            + porccandpartmun.toFixed(2) + "% del total de válidos municipales para su partido.)"
+            + "</small>");
+        })
+        .on("mouseout", function(){
+            updateBarplot(vectorvotosinicial, validosinicial);
+            info.html("<small>Porcentaje de votos válidos nacionales para cada partido."
+             + "<br>" + toTitleCase(datos["nom"]) + " logró " + votosPalabra(datos["tot"]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+             + " a nivel nacional; un " + porcentaje.toFixed(2) + "% del total de su partido." + senadorono +"</small>");
+        })
+        .transition()
+        .duration(1000)
+        .style("fill", color[datos.par])
+        .style("fill-opacity", function(d){
+            var identificacion = "mun" + d.id;
+            var votosmunicipio = datos[identificacion];
+            if(votosmunicipio == undefined){return 0;}
+            if(votosmunicipio != 0){
+                return opacityScale(votosmunicipio);
+            }
+            else{return 0;}
+        });
+}
+
+function votosPalabra(n){
+    if(n == 1){
+        return n + " voto";
+    }
+    else{
+        return n +" votos";
+    }
+}
+function colorearMapaInicial(){
+    info.html("<small>Porcentaje de votos válidos nacionales para cada partido.</small>");
+    map.selectAll(".mpio")
+        .data(municipios.features)
+        .transition()
+        .duration(1000)
+        .style("fill-opacity", 1)
+        .style("fill", function(d) {
+            var datos = datosMunicipioId.get(d.id)
+            if(datos){
+                var ganador = datos["gan"];
+                return color[ganador];
+            }
+            else{
+                return "#000000";
+            }
+        })
+        .on("mouseover", function(d){
+            var h = datosMunicipioId.get(d.id)
+            var vectorvotos = h["votos"];
+            var validos = h["val"];
+            updateBarplot(vectorvotos, validos);
+            var mun= h["mun"];
+            var dep= h["dep"];
+            var blan = 100 * h["bl"] / h["val"];
+            var abs = h["abs"];
+            var valporc = 100 * h["val"] / validosinicial;
+            info.html("<small>" +
+            "Porcentaje de votos válidos en "
+            + mun +", " + dep + ", para cada partido."
+            + "<br>Votos válidos del total nacional: " + valporc.toFixed(2) +"%"
+            + "<br>Blancos: " + blan.toFixed(2) + "% "
+            + "<br>Abstención: " + abs.toFixed(2) + "%"
+            + "</small>");
+        })
+        .on("mouseout", function(){
+            updateBarplot(vectorvotosinicial, validosinicial);
+            info.html("<small>Porcentaje de votos válidos nacionales para cada partido.</small>");
+        });
+}
+
+function change(){
+    var v = this.value;
+    console.log(v);
+    if(v == "DISTRIBUCIÓN NACIONAL"){
+        colorearMapaInicial();
+    }
+    else{
+        var datos = datosCandidatoNombre.get(v);
+        colorearMapaCandidato(datos);
+    }
+}
+
 
 function resize(){
     widthmap = parseFloat(d3.select("#mapa-municipios").style("width"));

@@ -73,8 +73,10 @@ function ready(error, colombia) {
   d3.select("#indice-nacional").html(indicenacional.toFixed(2));
 
   var scaleIndices = d3.scale.linear()
-      .domain([0, d3.max(vectorindices)])
-      .range([0.3, 1]);
+      .domain([d3.min(vectorindices.filter(function(d){
+          return d != 0;
+      })), d3.max(vectorindices)])
+      .range([0.1, 1]);
 
   g.selectAll("path")
       .data(topojson.feature(colombia, colombia.objects.mpio).features)

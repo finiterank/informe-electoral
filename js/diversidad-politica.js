@@ -1,4 +1,4 @@
-var width = 700,
+var width = 600,
     height = 700,
     active = d3.select(null);
 

@@ -76,7 +76,7 @@ function ready(error, colombia) {
       .domain([d3.min(vectorindices.filter(function(d){
           return d != 0;
       })), d3.max(vectorindices)])
-      .range([0.1, 1]);
+      .range([1, 0.1]);
 
   g.selectAll("path")
       .data(topojson.feature(colombia, colombia.objects.mpio).features)

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<title>Partidos ganadores por municipio - Elecciones al Senado 2014</title>
+<meta charset="utf-8">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href='http://fonts.googleapis.com/css?family=Muli:300,400,300italic,400italic' rel='stylesheet' type='text/css'>
+<link href="css/style.css" rel='stylesheet' type='text/css'>
+<style>
+body{background-color: #fff; color: #666;}
+ svg{margin:0 auto;}
+
+h4{text-align: center}
+
+h1{color: #666;}
+
+.indice-mun{text-align:center; color: #FFA365; font-size:4em;}
+.indice-dep{text-align:center;}
+#datos-indice{padding-top:30px; min-height:100px;}
+.colombia-borde{fill: #fff;}
+
+.background {
+  fill: none;
+  pointer-events: all;
+}
+
+.feature {
+  fill: #fff;
+  cursor: pointer;
+}
+
+.feature.active {
+/*  fill: orange;*/
+}
+.mpio{
+    fill: #fff;
+}
+
+.mpio:hover{fill:orange;}
+
+.mesh {
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.submesh {
+  fill: none;
+  stroke-width:1.2;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+</style>
+<body>
+
+<div class="container">
+<div class="row">
+
+<div class="col-md-4 col-md-push-8" style="padding-top:50px;">
+<h1>Diversidad política<br><small>Indice invertido de Herfindahl-Hirschman</small></h1>
+El índice invertido de Herfinhahl-Hirschman (originalmente diseñado como un indicador de competencia en sectores industriales) se usa en ciencia política para estimar el número de partidos (o candidatos) efectivos en competición en un lugar determinado. En este caso lo calculé a nivel municipal considerando los votos a Senado para los nueve partidos en disputa más el voto en blanco. Dado esto, los valores posibles del índice están entre uno y diez. Entre más alto, más competencia. (En el mapa, entre más intenso el color mayor el índice.) A nivel nacional, el indice es <span id="indice-nacional"></span>.
+<div id="datos-indice">
+</div>
+</div>
+
+
+<div class="col-md-8 col-md-pull-4">
+<div id="mapa"></div>
+</div>
+
+</div>
+</div>
+
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="http://d3js.org/queue.v1.min.js"></script>
+<script type="text/javascript" src="js/topojson.v1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/diversidad-politica.js"></script>
+</body>
+</html>

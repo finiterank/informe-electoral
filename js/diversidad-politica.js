@@ -6,9 +6,9 @@ var datosMunicipioId = d3.map(),
     indDep = d3.map();
 
 var projection = d3.geo.mercator()
-    .scale(1500)
+    .scale(1800)
     .translate([width / 2, height / 2])
-    .center([-55,40])
+    .center([-55,37])
     .rotate([12,3,9]);
 
 var zoom = d3.behavior.zoom()
